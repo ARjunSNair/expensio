@@ -56,10 +56,47 @@ class AuthControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    void login_shouldReturnJwtIfCredentialsValid() throws Exception {
+        String email = "test@example.com";
+        String password = "password123";
+        String jwt = "jwt-token";
+        var request = new UserLoginRequest(email, password);
+        Mockito.when(userService.login(email, password)).thenReturn(jwt);
+        mockMvc.perform(post("/api/auth/login")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(result -> result.getResponse().getContentAsString().equals(jwt));
+    }
+
+    @Test
+    void login_shouldReturnUnauthorizedIfCredentialsInvalid() throws Exception {
+        String email = "test@example.com";
+        String password = "wrongpass";
+        var request = new UserLoginRequest(email, password);
+        Mockito.when(userService.login(email, password)).thenReturn(null);
+        mockMvc.perform(post("/api/auth/login")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isUnauthorized());
+    }
+
     static class UserRegistrationRequest {
         public String email;
         public String password;
         public UserRegistrationRequest(String email, String password) {
+            this.email = email;
+            this.password = password;
+        }
+    }
+
+    static class UserLoginRequest {
+        public String email;
+        public String password;
+        public UserLoginRequest(String email, String password) {
             this.email = email;
             this.password = password;
         }

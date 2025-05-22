@@ -1,6 +1,7 @@
 package com.expensetracker.controller;
 
 import com.expensetracker.dto.UserRegistrationRequest;
+import com.expensetracker.dto.UserLoginRequest;
 import com.expensetracker.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,16 @@ public class AuthController {
             return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody UserLoginRequest request) {
+        String jwt = userService.login(request.getEmail(), request.getPassword());
+        if (jwt != null) {
+            return ResponseEntity.ok(jwt);
+        } else {
+            return ResponseEntity.status(401).build();
         }
     }
 } 

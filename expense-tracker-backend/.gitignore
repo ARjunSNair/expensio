@@ -22,3 +22,5 @@
 
 # Spring Boot
 spring.log 
+
+.vscode/settings.json

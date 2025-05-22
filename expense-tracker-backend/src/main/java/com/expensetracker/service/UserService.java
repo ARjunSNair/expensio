@@ -16,6 +16,7 @@ public class UserService {
     private final EmailService emailService;
     private final BCryptPasswordEncoder passwordEncoder;
     private final ConfirmationTokenRepository tokenRepository;
+    private final JwtService jwtService;
 
     public void registerUser(String email, String password) {
         String encodedPassword = passwordEncoder.encode(password);
@@ -40,5 +41,14 @@ public class UserService {
         user.setStatus(User.Status.ACTIVE);
         userRepository.save(user);
         return true;
+    }
+
+    public String login(String email, String password) {
+        Optional<User> userOpt = userRepository.findByEmail(email);
+        if (userOpt.isEmpty()) return null;
+        User user = userOpt.get();
+        if (user.getStatus() != User.Status.ACTIVE) return null;
+        if (!passwordEncoder.matches(password, user.getPassword())) return null;
+        return jwtService.generateToken(user.getEmail(), user.getId());
     }
 } 

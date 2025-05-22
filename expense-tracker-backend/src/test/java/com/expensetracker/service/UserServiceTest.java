@@ -22,6 +22,8 @@ class UserServiceTest {
     private EmailService emailService;
     @Mock
     private BCryptPasswordEncoder passwordEncoder;
+    @Mock
+    private JwtService jwtService;
     @InjectMocks
     private UserService userService;
 
@@ -63,7 +65,7 @@ class UserServiceTest {
         when(tokenRepository.findByToken(token)).thenReturn(java.util.Optional.of(confirmationToken));
         UserRepository userRepository = mock(UserRepository.class);
         when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
-        UserService userService = new UserService(userRepository, emailService, passwordEncoder, tokenRepository);
+        UserService userService = new UserService(userRepository, emailService, passwordEncoder, tokenRepository, jwtService);
 
         // Act
         boolean result = userService.confirmUser(token);
@@ -79,7 +81,7 @@ class UserServiceTest {
         String token = "invalid-token";
         ConfirmationTokenRepository tokenRepository = mock(ConfirmationTokenRepository.class);
         when(tokenRepository.findByToken(token)).thenReturn(java.util.Optional.empty());
-        UserService userService = new UserService(userRepository, emailService, passwordEncoder, tokenRepository);
+        UserService userService = new UserService(userRepository, emailService, passwordEncoder, tokenRepository, jwtService);
 
         // Act
         boolean result = userService.confirmUser(token);
