@@ -21,14 +21,20 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import com.expensetracker.config.OAuth2AuthenticationSuccessHandler;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 
 @Configuration
 public class SecurityConfig {
     @Autowired
     private JwtService jwtService;
 
+    @Autowired
+    private OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
+
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, ObjectProvider<ClientRegistrationRepository> clientRegistrationRepositoryProvider) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(authz -> authz
@@ -37,6 +43,9 @@ public class SecurityConfig {
             )
             .exceptionHandling(e -> e.authenticationEntryPoint(authenticationEntryPoint()))
             .addFilterBefore(new JwtAuthenticationFilter(jwtService), org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
+        if (clientRegistrationRepositoryProvider.getIfAvailable() != null) {
+            http.oauth2Login(oauth2 -> oauth2.successHandler(oAuth2AuthenticationSuccessHandler));
+        }
         return http.build();
     }
 

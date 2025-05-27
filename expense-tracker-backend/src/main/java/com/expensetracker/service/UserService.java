@@ -51,4 +51,8 @@ public class UserService {
         if (!passwordEncoder.matches(password, user.getPassword())) return null;
         return jwtService.generateToken(user.getEmail(), user.getId());
     }
+
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
 } 
