@@ -70,7 +70,7 @@ public class SecurityConfig {
                 try {
                     var claims = jwtService.parseToken(token);
                     String email = claims.getSubject();
-                    Long userId = claims.get("userId", Long.class);
+                    // Long userId = claims.get("userId", Long.class);
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(email, null, Collections.emptyList());
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authentication);
